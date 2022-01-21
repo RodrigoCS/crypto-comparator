@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { RecoilRoot, useRecoilValue } from 'recoil';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from 'react-router-dom';
+
+import AppLayout from './layouts/AppLayout';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Welcome from './pages/Welcome/Welcome';
+import { profileCompletionState } from './store/User';
+
+function AuthRoute({ children }) {
+  let isProfileComplete = useRecoilValue(profileCompletionState);
+  let location = useLocation();
+
+  if (!isProfileComplete) {
+    return <Navigate to='/' state={{ from: location }} replace />;
+  }
+
+  return children;
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <RecoilRoot>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route exact path='/' element={<Welcome />} />
+            <Route
+              path='/dashboard'
+              element={
+                <AuthRoute>
+                  <Dashboard />
+                </AuthRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </RecoilRoot>
   );
 }
 
